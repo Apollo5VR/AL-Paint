@@ -1,11 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
+using Normal.Realtime;
 
 public class Brush : MonoBehaviour
 {
+    // Reference to Realtime to use to instantiate brush strokes
+    [SerializeField] private Realtime _realtime;
+
     // Prefab to instantiate when we draw a new brush stroke
     [SerializeField] private GameObject _brushStrokePrefab = null;
+
+    [SerializeField] private Transform _cubeTransform = null;
 
     // Which hand should this brush instance track?
     private enum Hand { LeftHand, RightHand };
@@ -19,6 +25,7 @@ public class Brush : MonoBehaviour
     private UnityEngine.XR.InputDevice handDeviceR;
     private UnityEngine.XR.InputDevice selectedHandDevice;
 
+    //GG
     private void Start()
     {
         var inputDevices = new List<UnityEngine.XR.InputDevice>();
@@ -29,6 +36,11 @@ public class Brush : MonoBehaviour
             Debug.Log(string.Format("Device found with name '{0}' and role '{1}'", device.name, device.role.ToString()));
         }
 
+        AssignHandXR();
+    }
+
+    private void AssignHandXR()
+    {
         var leftHandDevices = new List<UnityEngine.XR.InputDevice>();
         UnityEngine.XR.InputDevices.GetDevicesAtXRNode(UnityEngine.XR.XRNode.LeftHand, leftHandDevices);
 
@@ -55,7 +67,7 @@ public class Brush : MonoBehaviour
             Debug.Log("Found more than one right hand!");
         }
 
-        if(_hand == Hand.RightHand)
+        if (_hand == Hand.RightHand)
         {
             selectedHandDevice = handDeviceR;
         }
@@ -67,9 +79,17 @@ public class Brush : MonoBehaviour
 
     private void Update()
     {
+        if (!_realtime.connected)
+            return;
+
+        if(selectedHandDevice.characteristics == InputDeviceCharacteristics.None)
+        {
+            AssignHandXR();
+        }
+
         // Start by figuring out which hand we're tracking
         XRNode node = _hand == Hand.LeftHand ? XRNode.LeftHand : XRNode.RightHand;
-        string trigger = _hand == Hand.LeftHand ? "Left Trigger" : "Right Trigger";
+        //string trigger = _hand == Hand.LeftHand ? "Left Trigger" : "Right Trigger";
 
         // Get the position & rotation of the hand
         bool handIsTracking = UpdatePose(node, ref _handPosition, ref _handRotation);
@@ -86,6 +106,14 @@ public class Brush : MonoBehaviour
             triggerPressed = false;
         }
 
+        //GG testing wall
+        _handRotation = _cubeTransform.rotation;
+        //GG for some reason we need "-1.25" when multiplayer is connected to accurately align with the VR player hand height
+        _handPosition = new Vector3(_handPosition.x, _handPosition.y - 1.25f, _cubeTransform.position.z - Random.Range(0.01f, 0.02f)); //to offset it in front of wall, random to avoid z texture clipping
+
+
+        //Debug.Log("L Hand position y is: " + _handPosition.y);
+
         // If we lose tracking, stop drawing
         if (!handIsTracking)
             triggerPressed = false;
@@ -94,7 +122,7 @@ public class Brush : MonoBehaviour
         if (triggerPressed && _activeBrushStroke == null)
         {
             // Instantiate a copy of the Brush Stroke prefab.
-            GameObject brushStrokeGameObject = Instantiate(_brushStrokePrefab);
+            GameObject brushStrokeGameObject = Realtime.Instantiate(_brushStrokePrefab.name, Realtime.InstantiateOptions.defaults); //these are defaultss - ownedByClient: true, useInstance: _realtime
 
             // Grab the BrushStroke component from it
             _activeBrushStroke = brushStrokeGameObject.GetComponent<BrushStroke>();
