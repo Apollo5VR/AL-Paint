@@ -109,7 +109,7 @@ public class Brush : MonoBehaviour
         //GG testing wall
         _handRotation = _cubeTransform.rotation;
         //GG for some reason we need "-1.25" when multiplayer is connected to accurately align with the VR player hand height
-        _handPosition = new Vector3(_handPosition.x, _handPosition.y - 1.25f, _cubeTransform.position.z - Random.Range(0.01f, 0.02f)); //to offset it in front of wall, random to avoid z texture clipping
+        _handPosition = new Vector3(_handPosition.x, _handPosition.y - 1.25f, _cubeTransform.position.z + Random.Range(0.01f, 0.02f)); //to offset it in front of wall, random to avoid z texture clipping
 
 
         //Debug.Log("L Hand position y is: " + _handPosition.y);

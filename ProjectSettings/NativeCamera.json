@@ -1,0 +1,5 @@
+{
+    "AutomatedSetup": false,
+    "CameraUsageDescription": "The app requires access to the camera to take pictures or record videos with it.",
+    "MicrophoneUsageDescription": "The app will capture microphone input in the recorded video."
+}
