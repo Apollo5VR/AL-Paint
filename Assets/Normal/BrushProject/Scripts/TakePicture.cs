@@ -11,7 +11,7 @@ public class TakePicture : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //ScreenCapture.CaptureScreenshot(imageName);
+        //ScreenCapture.CaptureScreenshot(Application.dataPath + imageName + ".png");
         //Debug.Log("Captured a screenshot of the graffiti wall");
     }
 
